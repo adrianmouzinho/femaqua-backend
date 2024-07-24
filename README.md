@@ -40,9 +40,10 @@ git clone https://github.com/adrianmouzinho/femaqua-backend.git
 
 ```sh
 cd femaqua-backend
-composer install
-sail up -d
-sail artisan migrate
+composer require laravel/sail --dev
+php artisan sail:install
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan migrate
 ```
 
 ## API Documentation (Swagger)
