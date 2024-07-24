@@ -222,5 +222,7 @@ class ToolController extends Controller
     public function destroy(string $toolId)
     {
         $this->toolRepository->delete($toolId);
+
+        return response()->json([], 204);
     }
 }
