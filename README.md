@@ -54,6 +54,12 @@ sail artisan key:generate
 sail artisan migrate
 ```
 
+### Running tests
+
+```bash
+sail artisan test
+```
+
 ## API Documentation (Swagger)
 
 For API documentation, access the link: [http://localhost/api/v1/documentation](http://localhost/api/v1/documentation)
