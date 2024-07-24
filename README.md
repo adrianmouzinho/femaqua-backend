@@ -23,7 +23,6 @@ FEMAQUA is a simple application for managing tools with their respective names, 
 
 ### Prerequisites
 
-- [Composer](https://getcomposer.org/)
 - [Docker](https://www.docker.com/)
 
 ### Cloning the project
@@ -40,10 +39,19 @@ git clone https://github.com/adrianmouzinho/femaqua-backend.git
 
 ```sh
 cd femaqua-backend
-composer require laravel/sail --dev
-php artisan sail:install
-./vendor/bin/sail up -d
-./vendor/bin/sail artisan migrate
+
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php82-composer:latest \
+    composer install --ignore-platform-reqs   
+
+sail up -d
+
+sail artisan key:generate
+
+sail artisan migrate
 ```
 
 ## API Documentation (Swagger)
