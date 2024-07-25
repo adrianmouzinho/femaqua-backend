@@ -7,40 +7,40 @@ use App\Models\Tool;
 
 class ToolRepository implements ToolRepositoryInterface
 {
-    public function index($tag)
+    public function list(string $userId, ?string $tag)
     {
-        return Tool::where(function ($query) use ($tag) {
-            if ($tag) {
-                $query->whereRaw("JSON_SEARCH(tags, 'one', '%{$tag}%') IS NOT NULL");
-            }
-        })->get();
+        return Tool::where('user_id', $userId)
+            ->where(function ($query) use ($tag) {
+                if ($tag) {
+                    $query->whereRaw("JSON_SEARCH(tags, 'one', '%{$tag}%') IS NOT NULL");
+                }
+            })
+            ->get();
     }
 
-    public function getById($toolId)
+    public function getById(string $toolId)
     {
-        return Tool::find($toolId);
+        $tool = Tool::find($toolId);
+
+        return $tool;
     }
 
     public function store(array $data)
     {
-        return Tool::create($data);
+        $tool = Tool::create($data);
+
+        return $tool;
     }
 
-    public function update(array $data, $toolId)
+    public function update(Tool $tool, array $data)
     {
-        $tool = $this->getById($toolId);
-
-        if (!$tool) {
-            return null;
-        }
-
         $tool->update($data);
 
         return $tool;
     }
 
-    public function delete($toolId)
+    public function delete(Tool $tool)
     {
-        Tool::destroy($toolId);
+        $tool->delete();
     }
 }

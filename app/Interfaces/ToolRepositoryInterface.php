@@ -2,11 +2,13 @@
 
 namespace App\Interfaces;
 
+use App\Models\Tool;
+
 interface ToolRepositoryInterface
 {
-    public function index($tag);
-    public function getById($toolId);
+    public function list(string $userId, ?string $tag);
+    public function getById(string $toolId);
     public function store(array $data);
-    public function update(array $data, $toolId);
-    public function delete($toolId);
+    public function update(Tool $tool, array $data);
+    public function delete(Tool $tool);
 }

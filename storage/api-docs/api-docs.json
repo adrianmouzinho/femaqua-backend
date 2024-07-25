@@ -28,7 +28,7 @@
                                     "name",
                                     "email",
                                     "password",
-                                    "confirm_password"
+                                    "password_confirmation"
                                 ],
                                 "properties": {
                                     "name": {
@@ -43,7 +43,7 @@
                                         "type": "string",
                                         "example": "password"
                                     },
-                                    "confirm_password": {
+                                    "password_confirmation": {
                                         "type": "string",
                                         "example": "password"
                                     }

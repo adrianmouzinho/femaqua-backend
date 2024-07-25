@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Tool;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,6 +21,7 @@ class ToolFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => User::factory(),
             'title' => $this->faker->sentence(3),
             'link' => $this->faker->url(),
             'description' => $this->faker->paragraph(),

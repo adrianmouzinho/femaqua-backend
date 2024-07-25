@@ -26,9 +26,9 @@ class ToolControllerTest extends TestCase
      */
     public function test_user_can_list_tools(): void
     {
-        $this->authenticateUser();
+        $user = $this->authenticateUser();
 
-        $tools = Tool::factory(3)->create();
+        $tools = Tool::factory(3)->create(['user_id' => $user->id]);
 
         $response = $this->getJson('/api/v1/tools');
 
@@ -138,9 +138,9 @@ class ToolControllerTest extends TestCase
      */
     public function test_user_can_update_a_tool(): void
     {
-        $this->authenticateUser();
+        $user = $this->authenticateUser();
 
-        $tool = Tool::factory(1)->createOne();
+        $tool = Tool::factory(1)->createOne(['user_id' => $user->id]);
 
         $data = [
             'title' => 'Notion',
@@ -196,6 +196,35 @@ class ToolControllerTest extends TestCase
     }
 
     /**
+     * Test if an authenticated user cannot update a tool that is not theirs.
+     */
+    public function test_user_cannot_update_a_tool_that_is_not_theirs(): void
+    {
+        $this->authenticateUser();
+        $user = User::factory()->create();
+
+        $tool = Tool::factory(1)->createOne(['user_id' => $user->id]);
+
+        $data = [
+            'title' => 'Notion',
+            'link' => 'https://notion.so',
+            'description' => 'All in one tool to organize teams and ideas. Write, plan, collaborate, and get organized.',
+        ];
+
+        $response = $this->putJson('/api/v1/tools/' . $tool->id, $data);
+
+        $response->assertStatus(403);
+
+        $response->assertJson(function (AssertableJson $json) {
+            $json->hasAll(['message']);
+
+            $json->whereAll([
+                'message' => 'You do not have permission to delete this tool.',
+            ]);
+        });
+    }
+
+    /**
      * Test if a non-authenticated user cannot update a tool.
      */
     public function test_non_authenticated_user_cannot_update_a_tool(): void
@@ -216,13 +245,44 @@ class ToolControllerTest extends TestCase
      */
     public function test_user_can_delete_a_tool(): void
     {
-        $this->authenticateUser();
+        $user = $this->authenticateUser();
 
-        $tool = Tool::factory(1)->createOne();
+        $tool = Tool::factory(1)->createOne(['user_id' => $user->id]);
 
         $response = $this->deleteJson('/api/v1/tools/' . $tool->id);
 
-        $response->assertStatus(204);
+        $response->assertStatus(200);
+
+        $response->assertJson(function (AssertableJson $json) {
+            $json->hasAll(['message']);
+
+            $json->whereAll([
+                'message' => 'Tool deleted.',
+            ]);
+        });
+    }
+
+    /**
+     * Test if an authenticated user cannot delete a tool that is not theirs.
+     */
+    public function test_user_cannot_delete_a_tool_that_is_not_theirs(): void
+    {
+        $this->authenticateUser();
+        $user = User::factory()->create();
+
+        $tool = Tool::factory(1)->createOne(['user_id' => $user->id]);
+
+        $response = $this->deleteJson('/api/v1/tools/' . $tool->id);
+
+        $response->assertStatus(403);
+
+        $response->assertJson(function (AssertableJson $json) {
+            $json->hasAll(['message']);
+
+            $json->whereAll([
+                'message' => 'You do not have permission to delete this tool.',
+            ]);
+        });
     }
 
     /**

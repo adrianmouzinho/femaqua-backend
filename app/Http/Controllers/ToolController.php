@@ -60,9 +60,10 @@ class ToolController extends Controller
      */
     public function index(Request $request)
     {
+        $userId = $request->user()->id;
         $tag = $request->tag;
 
-        $tools = $this->toolRepository->index($tag);
+        $tools = $this->toolRepository->list($userId, $tag);
 
         return response()->json(ToolResource::collection($tools));
     }
@@ -107,7 +108,10 @@ class ToolController extends Controller
      */
     public function store(StoreToolRequest $request)
     {
+        $userId = $request->user()->id;
+
         $data = [
+            'user_id' => $userId,
             'title' => $request->title,
             'link' => $request->link,
             'description' => $request->description,
@@ -177,19 +181,27 @@ class ToolController extends Controller
      *     )
      * )
      */
-    public function update(UpdateToolRequest $request, string $toolId)
+    public function update(UpdateToolRequest $request)
     {
+        $tool = $this->toolRepository->getById($request->tool);
+
+        if (!$tool) {
+            return response()->json(['message' => 'Tool not found.'], 404);
+        }
+
+        $userId = $request->user()->id;
+
+        if ($tool->user_id != $userId) {
+            return response()->json(['message' => 'You do not have permission to delete this tool.'], 403);
+        }
+
         $data = [
             'title' => $request->title,
             'link' => $request->link,
             'description' => $request->description,
         ];
 
-        $tool = $this->toolRepository->update($data, $toolId);
-
-        if (!$tool) {
-            return response()->json(['message' => 'Tool not found.'], 404);
-        }
+        $tool = $this->toolRepository->update($tool, $data);
 
         return response()->json(new ToolResource($tool));
     }
@@ -219,10 +231,22 @@ class ToolController extends Controller
      *     )
      * )
      */
-    public function destroy(string $toolId)
+    public function destroy(Request $request)
     {
-        $this->toolRepository->delete($toolId);
+        $tool = $this->toolRepository->getById($request->tool);
 
-        return response()->json([], 204);
+        if (!$tool) {
+            return response()->json(['message' => 'Tool not found.'], 404);
+        }
+
+        $userId = $request->user()->id;
+
+        if ($tool->user_id != $userId) {
+            return response()->json(['message' => 'You do not have permission to delete this tool.'], 403);
+        }
+
+        $this->toolRepository->delete($tool);
+
+        return response()->json(['message' => 'Tool deleted.'], 200);
     }
 }
